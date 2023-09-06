@@ -12,8 +12,8 @@ const app = express();
 const swaggerOptions = {
   swaggerDefinition: {
       info: {
-          title: 'Dados.',
-          version: '1.0.0'
+          title: 'Dados Decifra.',
+          version: '1.0.1'
       }
   },
   securityDefinitions: {
@@ -21,16 +21,14 @@ const swaggerOptions = {
       type: 'apiKey',
       description: 'JWT authorization of an API',
       name: 'Authorization',
-      in: 'header',
     },
   },
   components: {
-    securityDefinitions: {
+    securitySchemes : {
         bearerAuth: {
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'JWT',
-            in: 'header'
         }
     }
 },
@@ -132,9 +130,37 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
  *      
  */
 
-app.get('/asks', (req, res) => {
+  app.get('/asks', (req, res) => {
     res.send(
       perguntas()
-    )})
+  )})
+
+
+   /**
+   * @swagger
+   * /answear:
+   *   post:
+   *     parameters:
+   *       - in: query
+   *         name: idPergunta
+   *         type: 'string'
+   *         description: Id da pergunta
+   *       - in: query
+   *         name: resposta
+   *         type: 'string'
+   *         description: Resposta da pergunta
+   * 
+   *     responses:
+   *       200:
+   *         description: success
+   */
+
+    app.post('/answear', (req, res) => {
+
+      console.log('ID PERGUNTA: ' + req.query.idPergunta)
+      console.log('RESPOSTA: ' + req.query.resposta)
+      
+      res.send('ok')
+    })
 
 app.listen(5000, () => console.log("listening on 5000/api-docs"));
