@@ -5,6 +5,10 @@ import swaggerUI from 'swagger-ui-express';
 import parser from'simple-excel-to-json';
 import jsonwebtoken from 'jsonwebtoken'
 import { user, PRIVATE_KEY, tokenValited } from "./Auth/auth.js";
+import json2xls from 'json2xls'
+import fs from 'fs'
+import cors from 'cors'
+
 
 const doc = parser.parseXls2Json('perguntas.xlsx')
 const app = express();
@@ -49,6 +53,12 @@ const perguntas = () =>{
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 console.log(swaggerDocs);
+
+var corsOptions = {
+  origin: 'http://example.com',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
   /**
@@ -72,7 +82,7 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
    *           type: object
    *           $ref: '#/definitions/Login'
    */
-  app.post('/login', (req, res) => {
+  app.post('/login', cors(), (req, res) => {
     console.log('Response: ' + JSON.stringify(req.query))
 
 
@@ -118,19 +128,14 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
  * @swagger
  * /asks:
  *  get:
- *      description: Dados
- *      parameters:
- *          - name: pageSize
- *            in: query
- *            desciption: number of cities
- *            type: integer
+ *      description: Perguntas do projeto Decifra !
  *      responses:
  *          200:
  *              description: Success
  *      
  */
 
-  app.get('/asks', (req, res) => {
+  app.get('/asks', cors(), (req, res) => {
     res.send(
       perguntas()
   )})
@@ -155,10 +160,20 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
    *         description: success
    */
 
-    app.post('/answear', (req, res) => {
+    app.post('/answear', cors(), (req, res) => {
 
       console.log('ID PERGUNTA: ' + req.query.idPergunta)
       console.log('RESPOSTA: ' + req.query.resposta)
+
+      const id = req.query.idPergunta;
+      const resp = req.query.resposta;
+
+      var json ={
+        [id]: resp
+      }
+
+      var xls = json2xls(json)
+      fs.writeFileSync('data.xlsx', xls, 'binary')
       
       res.send('ok')
     })
